@@ -1,14 +1,23 @@
+import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useState } from 'react';
+import { createContext, useState } from 'react';
 import { Container, Nav, Navbar } from 'react-bootstrap';
 import { Link, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
 import './App.css';
 import data from './data.jsx';
+import Cart from './routes/cart.jsx';
 import Detail from './routes/detail.jsx';
+
+// Context API를 사용하기 위한 createContext 함수 호출
+export let Context1 = createContext();
 
 function App() {
 
-  let [shoes] = useState(data);
+  let [shoes, setShoes] = useState(data);
+
+  //context api를 사용하기위한 state
+  let [재고] = useState([10, 11, 12]);
+  
   let navigate = useNavigate();
 
   return (
@@ -17,7 +26,7 @@ function App() {
 
       <Navbar bg="dark" data-bs-theme="dark">
         <Container>
-          <Navbar.Brand href="#home">Navbar</Navbar.Brand>
+          <Navbar.Brand href="#home">ShoeShop</Navbar.Brand>
           <Nav className="me-auto">
             <Nav.Link onClick={() => { navigate('/'); }}>Home</Nav.Link>
             <Nav.Link onClick={() => { navigate('/Detail'); }}>Detail</Nav.Link>
@@ -28,6 +37,7 @@ function App() {
 
       <Link to="/">홈</Link>
       <Link to="/detail">상세페이지</Link>
+      <Link to="/cart">장바구니</Link>
       
         <Routes>
           <Route path="/" element={
@@ -40,9 +50,29 @@ function App() {
               })}
             </div>
           </div>
+          <button onClick={()=> {
+            //axios를 통해 get 요청.
+            axios.get('https://codingapple1.github.io/shop/data2.json')
+            .then((결과)=>{
+              //먼저 shoes의 데이터를 복사후, 결과.data를 복사해서 새로운 배열을 만들어줌.
+              let copy = [...shoes, ...결과.data];
+              //그리고 상태에 값을 컨트롤하는 setShoes를 통해 새로운 배열을 넣어줌.
+              //이렇게 하면 기존의 배열에 새로운 배열을 추가하는 형태가 됨.
+              setShoes(copy);
+            })
+
+
+
+          }}>더보기</button>
           </>
           } />
-          <Route path="/detail/:id" element={<Detail shoes = {shoes}/>} />
+          <Route path="/detail/:id" element={
+            <Context1.Provider value={{ 재고 }}>
+            <Detail shoes = {shoes}/>
+            </Context1.Provider>
+            } />
+
+          <Route path="/cart" element={ <Cart/> } />
 
           <Route path="/about" element={ <About/> }>
             <Route path="member" element={ <div>멤버 정보</div> } />
@@ -56,6 +86,8 @@ function App() {
             <Route path="two" element={<p>생일 기념 쿠폰 받기</p>}></Route>
           </Route>
         </Routes>
+
+        
 
       </div>
   )
