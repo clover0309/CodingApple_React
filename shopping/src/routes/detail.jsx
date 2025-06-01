@@ -9,6 +9,17 @@ import { Context1 } from "./../App";
 
 function Detail(props) {
 
+useEffect(()=>{
+  let 꺼낸거 = localStorage.getItem('watched')
+  꺼낸거 = JSON.parse(꺼낸거)
+  꺼낸거.push(찾은상품.id)
+
+  //Set으로 바꿨다가 다시 array로 만들기
+  꺼낸거 = new Set(꺼낸거)
+  꺼낸거 = Array.from(꺼낸거)
+  localStorage.setItem('watched', JSON.stringify(꺼낸거))
+  }, [])
+
   // Context API를 사용하기 위해 createContext로 만든 Context1을 불러옴
   let {재고, shoes} = useContext(Context1);
   let dispatch = useDispatch();
@@ -34,9 +45,9 @@ function Detail(props) {
   
   let [탭, 탭변경] = useState(0);
   let {id} = useParams();
-  let findShoes = props.shoes.find(function(x) {
-    return x.id == id;
-  });
+  let 찾은상품 = props.shoes.find(x => x.id == id);
+
+
 
 //1번 2번은 useEffect 실행 전에 뭔가 실행하려면 언제나 return () => {}을 사용해주면 된다. 
 // useEffect(() => { }) = 1.재레던링마다 코드실행하고 싶으면
@@ -62,12 +73,12 @@ return (
     </div>
 
     <div className="col-md-6">
-      <h4 className="pt-5">{findShoes.title}</h4>
-      <p>{findShoes.content}</p>
-      <p>{findShoes.price}원</p>
+      <h4 className="pt-5">{찾은상품.title}</h4>
+      <p>{찾은상품.content}</p>
+      <p>{찾은상품.price}원</p>
       <button className="btn btn-danger" onClick={
         () => {
-          dispatch(addItem({ id : findShoes.id, name: findShoes.title, count: 1 }));
+          dispatch(addItem({ id : 찾은상품.id, name: 찾은상품.title, count: 1 }));
           console.log('장바구니에 담겼습니다.');
         }
       }>주문하기</button> 

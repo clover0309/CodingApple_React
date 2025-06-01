@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Table } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { addCount } from "./../store.jsx";
 import { changeAge } from "./../store/userSlice.jsx";
+
 
 function cart () {
 
@@ -10,8 +12,12 @@ function cart () {
 
     let dispatch = useDispatch();
 
+    let [count, setCount] = useState(0);
+
     return (
         <div>
+            <Child></Child>
+            <button onClick={()=>{ setCount(count+1) }}>123</button>
             <h5>{state.user.name}의 장바구니, 나이 : {state.user.age}</h5>
             <button onClick={
                 () => {

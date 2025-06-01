@@ -1,37 +1,67 @@
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { Container, Nav, Navbar } from 'react-bootstrap';
+import { useQuery } from 'react-query';
 import { Link, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
 import './App.css';
 import data from './data.jsx';
 import Cart from './routes/cart.jsx';
 import Detail from './routes/detail.jsx';
 
+
 // Context API를 사용하기 위한 createContext 함수 호출
 export let Context1 = createContext();
 
 function App() {
 
-  let [shoes, setShoes] = useState(data);
+    useEffect(()=>{
+    localStorage.setItem('watched', JSON.stringify( [] ))
+  },[])
 
+  let obj = { name: 'kim' };
+  // 그대로 Array나 Object를 넣으면 안되고, JSON.stringify를 통해 문자열로 변환해서 넣어야 함.
+  localStorage.setItem('data', JSON.stringify(obj));
+  let getobj = localStorage.getItem('data');
+  console.log(JSON.parse(getobj)); // JSON.parse를 통해 다시 객체로 변환
+
+
+
+  let [shoes, setShoes] = useState(data);
   //context api를 사용하기위한 state
   let [재고] = useState([10, 11, 12]);
-  
   let navigate = useNavigate();
+
+  let result = useQuery(['작명'], () => {
+    return axios.get('https://codingapple1.github.io/userdata.json')
+    .then((a)=>{
+      console.log("요청됨");
+      return a.data
+    }),
+    { staleTime : 2000 }
+  })
+
+  result.data; // result.data를 통해 서버에서 받아온 데이터를 사용할 수 있음.
+  result.isLoading; // 로딩 중인지 확인할 수 있음.
+  result.error; // 에러가 발생했는지 확인할 수 있음.
+
 
   return (
       <div>
 
 
-      <Navbar bg="dark" data-bs-theme="dark">
+      <Navbar bg="light" data-bs-theme="light">
         <Container>
           <Navbar.Brand href="#home">ShoeShop</Navbar.Brand>
           <Nav className="me-auto">
             <Nav.Link onClick={() => { navigate('/'); }}>Home</Nav.Link>
             <Nav.Link onClick={() => { navigate('/Detail'); }}>Detail</Nav.Link>
-
           </Nav>
+          <Nav className="ms-auto">
+            { result.isLoading && '로딩중'}
+            { result.error && '에러남'}
+            { result.data && result.data.name }
+            </Nav>
         </Container>
       </Navbar>
 
